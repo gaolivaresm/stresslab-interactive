@@ -6,10 +6,10 @@ const Index = () => {
   const [alpha, setAlpha] = useState(45);
   const [Ac, setAc] = useState(5);
 
-  // Constantes de diseño y geometría
+  // Constantes de diseño
   const H = 350; 
   const MARGIN = 80;
-  const A_PERNO = 5; // cm²
+  const A_PERNO = 5; 
 
   const metrics = useMemo(() => {
     const aRad = alpha * (Math.PI / 180);
@@ -42,7 +42,6 @@ const Index = () => {
     };
   }, [P, alpha, Ac]);
 
-  // Componente interno para Flechas (estilo TikZ)
   const Arrow = ({ x1, y1, x2, y2, color, width = 2 }: any) => {
     const dx = x2 - x1;
     const dy = y2 - y1;
@@ -66,8 +65,7 @@ const Index = () => {
 
   return (
     <div className="flex min-h-screen bg-white text-slate-900 font-serif">
-      {/* Panel Lateral */}
-      <aside className="w-80 border-r border-slate-900 p-6 flex flex-col gap-6 bg-slate-50 shadow-inner">
+      <aside className="w-80 border-r border-slate-900 p-6 flex flex-col gap-6 bg-slate-50">
         <h1 className="text-2xl text-center border-b border-slate-900 pb-2 font-bold tracking-tight">StressLab v1.3</h1>
         
         <div className="space-y-6">
@@ -90,93 +88,79 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="mt-auto border border-slate-900 p-4 text-[11px] leading-snug bg-white shadow-sm">
-          <h3 className="font-bold border-b border-slate-200 mb-2 pb-1 uppercase tracking-tighter">Glosario Pedagógico</h3>
+        <div className="mt-auto border border-slate-900 p-4 text-[11px] bg-white">
+          <h3 className="font-bold border-b border-slate-200 mb-2 pb-1 uppercase italic">Glosario Pedagógico</h3>
           <dl className="space-y-1">
             <dt className="text-red-600 font-bold">● Acción (Rojo)</dt>
-            <dd>Fuerza externa aplicada (Viento P).</dd>
+            <dd>Fuerza externa (Viento P).</dd>
             <dt className="text-green-700 font-bold">● Reacción (Verde)</dt>
-            <dd>Fuerzas de los apoyos para el equilibrio.</dd>
+            <dd>Fuerzas que equilibran el sistema.</dd>
             <dt className="text-blue-700 font-bold">● Esfuerzo Interno (Azul)</dt>
-            <dd>Fuerza que viaja dentro del elemento estructural.</dd>
+            <dd>Fuerza dentro del elemento estructural.</dd>
           </dl>
         </div>
       </aside>
 
       <main className="flex-1 flex flex-col items-center justify-center p-10 relative">
         {metrics.collapse && (
-          <div className="absolute top-10 bg-red-600 text-white px-10 py-4 text-xl font-bold border-2 border-red-900 animate-pulse z-50">
+          <div className="absolute top-10 bg-red-600 text-white px-10 py-3 text-xl font-bold border-2 border-red-900 animate-pulse z-50">
             ⚠ COLAPSO ESTRUCTURAL ⚠
           </div>
         )}
 
-        {/* SVG de Análisis */}
-        <svg width="600" height="520" viewBox="0 0 600 520" className="border border-slate-200 shadow-lg bg-white">
-          {/* Apoyos Articulados */}
-          {[
-            { x: metrics.POST_X, y: metrics.BASE_Y, w: 50 },
-            { x: metrics.ANC_X, y: metrics.ANC_Y, w: 40 }
-          ].map((s, i) => (
-            <g key={i} transform={`translate(${s.x}, ${s.y})`}>
+        <svg width="600" height="520" viewBox="0 0 600 520" className="border border-slate-200 shadow-md bg-white">
+          {/* Apoyos */}
+          {[metrics.POST_X, metrics.ANC_X].map((x, i) => (
+            <g key={i} transform={`translate(${x}, ${metrics.BASE_Y})`}>
               <circle r="5" fill="white" stroke="black" strokeWidth="1.5" />
               <path d="M0,5 L-15,20 L15,20 Z" fill="none" stroke="black" strokeWidth="1.5" />
-              <line x1={-s.w/2} y1="20" x2={s.w/2} y2="20" stroke="black" strokeWidth="1.5" />
+              <line x1="-25" y1="20" x2="25" y2="20" stroke="black" strokeWidth="1.5" />
             </g>
           ))}
 
-          {/* Poste y Cable */}
+          {/* Elementos Estructurales */}
           <line x1={metrics.POST_X} y1={metrics.BASE_Y} x2={metrics.POST_X} y2={metrics.POST_TOP_Y} stroke="#111" strokeWidth="3" />
-          <line 
-            x1={metrics.POST_X} y1={metrics.POST_TOP_Y} x2={metrics.ANC_X} y2={metrics.ANC_Y} 
-            stroke={metrics.failCable ? "#c00" : "#0057b7"} strokeWidth="2" strokeDasharray="6,3" 
-          />
+          <line x1={metrics.POST_X} y1={metrics.POST_TOP_Y} x2={metrics.ANC_X} y2={metrics.ANC_Y} stroke={metrics.failCable ? "#c00" : "#0057b7"} strokeWidth={2} strokeDasharray="6,3" />
 
-          {/* Arco de Ángulo Alpha */}
-          <path 
-            d={`M${metrics.ANC_X + 40},${metrics.ANC_Y} A40,40 0 0,0 ${metrics.ANC_X + 40 * Math.cos(Math.atan2(metrics.ANC_Y - metrics.POST_TOP_Y, metrics.POST_X - metrics.ANC_X))},${metrics.ANC_Y - 40 * Math.sin(Math.atan2(metrics.ANC_Y - metrics.POST_TOP_Y, metrics.POST_X - metrics.ANC_X))}`} 
-            fill="none" stroke="#666" strokeWidth="1" 
-          />
-          <text x={metrics.ANC_X + 50} y={metrics.ANC_Y - 15} className="text-[12px] fill-slate-500 italic">α={alpha}°</text>
-
-          {/* Vectores: ACCIÓN P */}
+          {/* Acción P (Fuerza aplicada hacia la derecha) */}
           <Arrow x1={metrics.POST_X - metrics.pLen - 10} y1={metrics.POST_TOP_Y} x2={metrics.POST_X - 6} y2={metrics.POST_TOP_Y} color="#c00" width={2.5} />
-          <text x={metrics.POST_X - metrics.pLen/2 - 10} y={metrics.POST_TOP_Y - 10} className="fill-red-700 text-sm font-bold text-center">P={P} kN</text>
+          <text x={metrics.POST_X - metrics.pLen/2 - 10} y={metrics.POST_TOP_Y - 10} className="fill-red-700 text-xs font-bold" textAnchor="middle">P={P} kN</text>
 
-          {/* Vectores: REACCIONES */}
-          <Arrow x1={metrics.POST_X} y1={metrics.BASE_Y + 5} x2={metrics.POST_X} y2={metrics.BASE_Y + 5 + metrics.ryLen} color="#080" />
-          <text x={metrics.POST_X + 8} y={metrics.BASE_Y + metrics.ryLen + 20} className="fill-green-700 text-[11px]">Ry={metrics.Np.toFixed(1)} kN</text>
+          {/* Reacción Poste (Ry HACIA ARRIBA) */}
+          <Arrow x1={metrics.POST_X} y1={metrics.BASE_Y + 5 + metrics.ryLen} x2={metrics.POST_X} y2={metrics.BASE_Y + 6} color="#080" />
+          <text x={metrics.POST_X + 8} y={metrics.BASE_Y + metrics.ryLen + 20} className="fill-green-700 text-[11px]">Ry={metrics.Np.toFixed(1)} kN ↑</text>
 
+          {/* Reacciones Anclaje (Rx hacia la izquierda, Ry hacia abajo) */}
           <Arrow x1={metrics.ANC_X} y1={metrics.ANC_Y} x2={metrics.ANC_X - metrics.rxLen} y2={metrics.ANC_Y} color="#080" />
-          <text x={metrics.ANC_X - metrics.rxLen - 4} y={metrics.ANC_Y + 4} textAnchor="end" className="fill-green-700 text-[11px]">Rx={P.toFixed(1)} kN ←</text>
-
+          <text x={metrics.ANC_X - metrics.rxLen - 5} y={metrics.ANC_Y + 4} textAnchor="end" className="fill-green-700 text-[11px]">Rx={P.toFixed(1)} kN ←</text>
+          
           <Arrow x1={metrics.ANC_X} y1={metrics.ANC_Y} x2={metrics.ANC_X} y2={metrics.ANC_Y + metrics.ryLen} color="#080" />
-          <text x={metrics.ANC_X - 4} y={metrics.ANC_Y + metrics.ryLen + 14} textAnchor="end" className="fill-green-700 text-[11px]">Ry={metrics.Np.toFixed(1)} kN</text>
+          <text x={metrics.ANC_X - 5} y={metrics.ANC_Y + metrics.ryLen + 14} textAnchor="end" className="fill-green-700 text-[11px]">Ry={metrics.Np.toFixed(1)} kN ↓</text>
 
-          {/* Etiquetas de Esfuerzos */}
-          <text x={(metrics.POST_X + metrics.ANC_X)/2 - 14} y={(metrics.POST_TOP_Y + metrics.ANC_Y)/2 - 10} className={`text-xs italic ${metrics.failCable ? 'fill-red-600' : 'fill-blue-700'}`}>Nc={metrics.Nc.toFixed(1)} kN</text>
-          <text x={metrics.POST_X + 16} y={(metrics.BASE_Y + metrics.POST_TOP_Y)/2} className="fill-blue-800 text-xs">Np={metrics.Np.toFixed(1)} kN</text>
-          <text x={metrics.POST_X - 14} y={(metrics.BASE_Y + metrics.POST_TOP_Y)/2} textAnchor="end" className="fill-slate-400 text-xs italic">H</text>
+          {/* Etiquetas de Esfuerzos Internos */}
+          <text x={(metrics.POST_X + metrics.ANC_X)/2 - 10} y={(metrics.POST_TOP_Y + metrics.ANC_Y)/2 - 15} className={`text-xs italic ${metrics.failCable ? 'fill-red-600' : 'fill-blue-700'}`}>Nc={metrics.Nc.toFixed(1)} kN</text>
+          <text x={metrics.POST_X + 16} y={(metrics.BASE_Y + metrics.POST_TOP_Y)/2} className="fill-blue-800 text-xs font-bold">Np={metrics.Np.toFixed(1)} kN</text>
+          <text x={metrics.POST_X - 15} y={(metrics.BASE_Y + metrics.POST_TOP_Y)/2} textAnchor="end" className="fill-slate-400 text-xs italic">H</text>
         </svg>
 
-        {/* Monitor con Memoria de Cálculo */}
-        <div className="w-[480px] border border-slate-900 mt-6 p-4 font-mono text-[13px] bg-[#f8f8f0] shadow-inner leading-relaxed">
-          <div className="font-bold border-b border-slate-400 mb-2 pb-1 text-center">─── Monitor de Tensiones ───</div>
+        <div className="w-[480px] border border-slate-900 mt-6 p-4 font-mono text-[13px] bg-[#f8f8f0] leading-relaxed">
+          <div className="font-bold border-b border-slate-400 mb-2 pb-1 text-center italic">─── Monitor de Tensiones ───</div>
           <div className="space-y-2">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between">
               <span>σ<sub>cable</sub> = N<sub>c</sub>/A = {metrics.Nc.toFixed(2)}/{Ac} =</span>
               <span className={metrics.failCable ? "text-red-600 font-bold" : "text-slate-900"}>
-                {metrics.sigma_mpa.toFixed(1)} MPa {metrics.failCable ? "▸ FALLA (>250)" : "✓"}
+                {metrics.sigma_mpa.toFixed(1)} MPa {metrics.failCable ? "▸ FALLA" : "✓"}
               </span>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between">
               <span>τ<sub>perno</sub> = R<sub>x</sub>/A<sub>p</sub> = {P.toFixed(2)}/{A_PERNO} =</span>
               <span className={metrics.failPin ? "text-red-600 font-bold" : "text-slate-900"}>
-                {metrics.tau_mpa.toFixed(1)} MPa {metrics.failPin ? "▸ FALLA (>120)" : "✓"}
+                {metrics.tau_mpa.toFixed(1)} MPa {metrics.failPin ? "▸ FALLA" : "✓"}
               </span>
             </div>
           </div>
-          <div className="mt-3 pt-2 border-t border-dashed border-slate-300 text-[11px] text-slate-500 flex justify-around">
-            <span>Nc={metrics.Nc.toFixed(2)} kN</span> | <span>Np={metrics.Np.toFixed(2)} kN</span> | <span>α={alpha}°</span>
+          <div className="mt-3 pt-2 border-t border-dashed border-slate-300 text-[11px] text-slate-500 flex justify-between italic">
+            <span>Nc={metrics.Nc.toFixed(2)} kN</span> <span>Np={metrics.Np.toFixed(2)} kN</span> <span>α={alpha}°</span>
           </div>
         </div>
       </main>
