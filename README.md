@@ -1,2 +1,38 @@
-StressLab Interactive (v1.3)StressLab es un simulador educativo interactivo diseñado para estudiantes de Estructuras I. La herramienta permite visualizar de manera dinámica la transición entre la Estática de Cuerpo Rígido y la Resistencia de Materiales, enfocándose en la descomposición de fuerzas externas en esfuerzos internos y reacciones de apoyo.🚀 Propósito PedagógicoEl objetivo principal es que el alumno comprenda que las fuerzas no desaparecen, sino que se transforman. El simulador permite explorar:Acciones: Cargas externas (Viento $P$).Esfuerzos Internos: Fuerzas axiales de tracción ($N_c$) y compresión ($N_p$).Reacciones: Respuestas del suelo en términos de fuerzas verticales ($R_y$) y cortantes ($R_x$).🛠️ Características TécnicasVisualización Estilo TikZ/LaTeX: Estética limpia, técnica y profesional.Cálculo en Tiempo Real: Motor lógico basado en equilibrio estático isostático.Feedback de Falla: Alertas visuales cuando se superan los límites elásticos del acero ($\sigma > 250 \, MPa$) o del perno de anclaje ($\tau > 120 \, MPa$).Cero Dependencias: Desarrollado en Vanilla JavaScript y SVG, lo que garantiza su funcionamiento en cualquier navegador sin instalaciones.📐 Modelo MatemáticoEl simulador resuelve el equilibrio del nodo superior y los apoyos mediante las siguientes ecuaciones:Esfuerzos InternosTracción en el Cable ($N_c$):$$N_c = \frac{P}{\cos(\alpha)}$$Compresión en el Poste ($N_p$):$$N_p = P \cdot \tan(\alpha)$$Tensiones de DiseñoTensión Axial ($\sigma$):$$\sigma = \frac{N_c}{A_{cable}}$$Tensión Tangencial en Anclaje ($\tau$):$$\tau = \frac{R_{x,anc}}{A_{perno}}$$🖥️ Instalación y UsoNo requiere configuración compleja.Clona el repositorio:Bashgit clone https://github.com/gaolivaresm/stresslab-interactive.git
-Abre el archivo index.html en tu navegador favorito.Utiliza los sliders laterales para modificar la carga, el ángulo y la sección del material.📊 Glosario de Colores<span style="color:#c00">●</span> Rojo (Acción): Carga de viento aplicada.<span style="color:#080">●</span> Verde (Reacción): Fuerzas que ejerce el suelo para mantener el equilibrio.<span style="color:#0057b7">●</span> Azul (Esfuerzo Interno): Flujo de fuerza dentro de los elementos estructurales.Desarrollado como material de apoyo docente para la cátedra de Estructuras I.
+# StressLab Interactive (v1.3) 🏗️
+
+**StressLab** es un simulador educativo interactivo desarrollado para estudiantes de **Estructuras I**. La herramienta permite visualizar de manera dinámica la transición crítica entre la **Estática de Cuerpo Rígido** y la **Resistencia de Materiales**.
+
+El objetivo es que el alumno comprenda físicamente cómo las fuerzas externas se transforman en esfuerzos internos y reacciones de apoyo mediante un modelo isostático de mástil con viento.
+
+---
+
+## 🎯 Propósito Pedagógico
+En el contexto de la formación de arquitectos e ingenieros, esta herramienta ayuda a identificar:
+* **Acciones:** Cargas externas aplicadas al sistema (Viento $P$).
+* **Esfuerzos Internos:** El "sufrimiento" interno de la materia (Tracción en cable $N_c$ y Compresión en poste $N_p$).
+* **Reacciones:** Las fuerzas que el suelo ejerce para mantener el equilibrio del conjunto ($R_x, R_y$).
+
+## 🛠️ Características Técnicas
+* **Motor Lógico:** Cálculo de equilibrio en tiempo real basado en trigonometría fundamental.
+* **Estética TikZ:** Interfaz limpia inspirada en la precisión gráfica de LaTeX/TikZ.
+* **Análisis de Falla:** Alertas visuales de **Colapso Estructural** basadas en límites elásticos reales:
+  * Acero (Cable): $\sigma > 250$ MPa.
+  * Perno (Anclaje): $\tau > 120$ MPa.
+* **Portabilidad:** Desarrollado en **Vanilla JavaScript** y **SVG**. Sin dependencias, funciona en cualquier navegador moderno.
+
+## 📐 Modelo Matemático
+El simulador resuelve el equilibrio del nodo superior mediante las siguientes ecuaciones:
+
+### Esfuerzos Internos
+$$N_c = \frac{P}{\cos(\alpha)}$$
+$$N_p = P \cdot \tan(\alpha)$$
+
+### Tensiones de Diseño
+$$\sigma = \frac{N_c}{A_{cable}} \cdot 10$$
+$$\tau = \frac{R_{x,anc}}{A_{perno}} \cdot 10$$
+*(Donde el factor 10 convierte de kN/cm² a MPa)*.
+
+## 🖥️ Instalación y Uso
+1. Clona este repositorio:
+   ```bash
+   git clone [https://github.com/gaolivaresm/stresslab-interactive.git](https://github.com/gaolivaresm/stresslab-interactive.git)
