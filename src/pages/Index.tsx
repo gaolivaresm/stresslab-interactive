@@ -6,11 +6,11 @@ const Index = () => {
   const [alpha, setAlpha] = useState(45);
   const [Ac, setAc] = useState(5);
 
-  // Estado del Cuestionario
-  const [integrantes, setIntegrantes] = useState("");
+  // Estado del Cuestionario e Integrantes
+  const [estudiantes, setEstudiantes] = useState([{ nombre: "", apellido: "", rut: "" }]);
   const [respuestas, setRespuestas] = useState<{ [key: number]: string }>({});
 
-  // Constantes y Cálculos Estructuras I
+  // Constantes y Cálculos
   const H = 350; 
   const MARGIN = 80;
   const A_PERNO = 5; 
@@ -42,40 +42,32 @@ const Index = () => {
     };
   }, [P, alpha, Ac]);
 
-  // Preguntas sugeridas para el laboratorio
   const preguntas = [
-    {
-      id: 1,
-      texto: "¿Para qué ángulo α la reacción Ry en el poste es exactamente igual a la carga P?",
-      opciones: ["30°", "45°", "60°", "75°"]
-    },
-    {
-      id: 2,
-      texto: "Si aumentamos el Área del Cable (Ac), ¿qué sucede con la fuerza interna Nc?",
-      opciones: ["Aumenta proporcionalmente", "Disminuye", "Se mantiene constante", "Se vuelve nula"]
-    },
-    {
-      id: 3,
-      texto: "¿Qué componente en el anclaje resiste el empuje horizontal del viento?",
-      opciones: ["Reacción Ry", "Reacción Rx (Corte)", "La compresión Np", "Ninguna de las anteriores"]
-    }
+    { id: 1, texto: "¿Para qué ángulo α la reacción Ry en el poste es exactamente igual a la carga P?", opciones: ["30°", "45°", "60°", "75°"] },
+    { id: 2, texto: "Si aumentamos el Área del Cable (Ac), ¿qué sucede con la fuerza interna Nc?", opciones: ["Aumenta proporcionalmente", "Disminuye", "Se mantiene constante", "Se vuelve nula"] },
+    { id: 3, texto: "¿Qué componente en el anclaje resiste el empuje horizontal del viento?", opciones: ["Reacción Ry", "Reacción Rx (Corte)", "La compresión Np", "Ninguna de las anteriores"] }
   ];
 
-  // Función para descargar el JSON para Moodle
+  const agregarEstudiante = () => setEstudiantes([...estudiantes, { nombre: "", apellido: "", rut: "" }]);
+  
+  const manejarCambioEstudiante = (index: number, campo: string, valor: string) => {
+    const nuevos = [...estudiantes];
+    nuevos[index] = { ...nuevos[index], [campo]: valor };
+    setEstudiantes(nuevos);
+  };
+
   const descargarEntrega = () => {
     const data = {
-      proyecto: "StressLab v1.3 - Entrega Moodle",
-      fecha: new Date().toLocaleString(),
-      integrantes: integrantes,
-      configuracion_final: { P, alpha, Ac },
-      respuestas_cuestionario: respuestas
+      proyecto: "StressLab v1.3 - Entrega Estructuras I",
+      integrantes: estudiantes,
+      configuracion: { P, alpha, Ac },
+      respuestas: respuestas
     };
-    
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `entrega_estructuras_${new Date().getTime()}.json`;
+    link.download = `LAB_EST_GRUPO_${new Date().getTime()}.json`;
     link.click();
   };
 
@@ -93,62 +85,50 @@ const Index = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-white text-slate-900 font-serif overflow-hidden">
-      {/* Panel Izquierdo: Controles */}
-      <aside className="w-72 border-r border-slate-900 p-5 flex flex-col gap-6 bg-slate-50 overflow-y-auto">
-        <h1 className="text-xl text-center border-b border-slate-900 pb-2 font-bold tracking-tight">StressLab v1.3</h1>
+    <div className="flex h-screen bg-white text-slate-900 font-serif overflow-hidden">
+      {/* Panel de Control e Integrantes */}
+      <aside className="w-80 border-r border-slate-900 p-5 flex flex-col gap-4 bg-slate-50 overflow-y-auto">
+        <h1 className="text-xl text-center border-b border-slate-900 pb-2 font-bold uppercase tracking-tight">StressLab v1.3</h1>
         
-        <div className="space-y-5">
-          <div className="flex flex-col gap-2">
-            <h2 className="text-xs font-bold uppercase tracking-tighter">1. Carga de Viento</h2>
-            <label className="text-sm flex justify-between font-mono">P: <span>{P} kN</span></label>
+        <div className="space-y-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-[10px] font-bold uppercase text-slate-500">Parámetros de Entrada</h2>
+            <label className="text-xs flex justify-between">P (Viento): <span>{P} kN</span></label>
             <input type="range" min="1" max="80" step="0.5" value={P} onChange={(e) => setP(parseFloat(e.target.value))} className="w-full accent-slate-900" />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h2 className="text-xs font-bold uppercase tracking-tighter">2. Geometría (α)</h2>
-            <label className="text-sm flex justify-between font-mono">Ángulo: <span>{alpha}°</span></label>
+            <label className="text-xs flex justify-between">Ángulo α: <span>{alpha}°</span></label>
             <input type="range" min="30" max="75" step="1" value={alpha} onChange={(e) => setAlpha(parseFloat(e.target.value))} className="w-full accent-slate-900" />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h2 className="text-xs font-bold uppercase tracking-tighter">3. Material Cable</h2>
-            <label className="text-sm flex justify-between font-mono">Ac: <span>{Ac} cm²</span></label>
+            <label className="text-xs flex justify-between">Área Cable: <span>{Ac} cm²</span></label>
             <input type="range" min="1" max="30" step="0.5" value={Ac} onChange={(e) => setAc(parseFloat(e.target.value))} className="w-full accent-slate-900" />
           </div>
-        </div>
 
-        {/* Sección de Entrega Moodle */}
-        <div className="mt-4 border-t-2 border-slate-900 pt-4 space-y-4">
-          <h2 className="text-sm font-bold uppercase text-center bg-slate-900 text-white py-1">Entrega Moodle</h2>
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold uppercase">Nombres de Integrantes:</label>
-            <textarea 
-              className="text-xs p-2 border border-slate-400 font-sans h-16" 
-              placeholder="Ej: Juan Pérez, María Soto..."
-              value={integrantes}
-              onChange={(e) => setIntegrantes(e.target.value)}
-            />
+          <div className="border-t border-slate-300 pt-3 space-y-3">
+            <h2 className="text-[10px] font-bold uppercase text-slate-500">Integrantes del Grupo</h2>
+            {estudiantes.map((est, idx) => (
+              <div key={idx} className="grid grid-cols-2 gap-1 p-2 border border-slate-200 bg-white rounded">
+                <input placeholder="Nombre" className="text-[10px] p-1 border" value={est.nombre} onChange={(e) => manejarCambioEstudiante(idx, 'nombre', e.target.value)} />
+                <input placeholder="Apellido" className="text-[10px] p-1 border" value={est.apellido} onChange={(e) => manejarCambioEstudiante(idx, 'apellido', e.target.value)} />
+                <input placeholder="RUT (12.345.678-9)" className="text-[10px] p-1 border col-span-2" value={est.rut} onChange={(e) => manejarCambioEstudiante(idx, 'rut', e.target.value)} />
+              </div>
+            ))}
+            <button onClick={agregarEstudiante} className="w-full text-[10px] border border-dashed border-slate-400 py-1 hover:bg-slate-100">+ Agregar Integrante</button>
           </div>
+
           <button 
             onClick={descargarEntrega}
-            disabled={!integrantes || Object.keys(respuestas).length < preguntas.length}
-            className="w-full bg-slate-900 text-white py-2 text-xs font-bold uppercase hover:bg-slate-700 disabled:bg-slate-300 transition-colors"
+            disabled={estudiantes.some(e => !e.nombre || !e.rut) || Object.keys(respuestas).length < preguntas.length}
+            className="w-full bg-slate-900 text-white py-2 text-[11px] font-bold uppercase hover:bg-slate-700 disabled:bg-slate-300 transition-colors"
           >
-            Descargar Reporte JSON
+            Descargar JSON para Moodle
           </button>
         </div>
       </aside>
 
-      {/* Área Central: Simulador */}
-      <main className="flex-1 flex flex-col items-center justify-start p-6 relative overflow-y-auto">
-        {metrics.collapse && (
-          <div className="absolute top-4 bg-red-600 text-white px-8 py-2 text-lg font-bold border-2 border-red-900 animate-pulse z-50">
-            ⚠ COLAPSO ESTRUCTURAL ⚠
-          </div>
-        )}
+      {/* Visualización y Cuestionario */}
+      <main className="flex-1 flex flex-col items-center justify-start p-4 relative overflow-y-auto">
+        {metrics.collapse && <div className="absolute top-2 bg-red-600 text-white px-6 py-2 text-sm font-bold border border-red-900 animate-pulse z-50 italic">⚠ COLAPSO ESTRUCTURAL ⚠</div>}
 
-        <svg width="550" height="400" viewBox="0 0 600 520" className="border border-slate-200 shadow-md bg-white shrink-0">
+        <svg width="550" height="380" viewBox="0 0 600 520" className="border border-slate-200 bg-white shadow-sm mb-4">
+          {/* Apoyos */}
           {[metrics.POST_X, metrics.ANC_X].map((x, i) => (
             <g key={i} transform={`translate(${x}, ${metrics.BASE_Y})`}>
               <circle r="5" fill="white" stroke="black" strokeWidth="1.5" />
@@ -158,44 +138,51 @@ const Index = () => {
           ))}
           <line x1={metrics.POST_X} y1={metrics.BASE_Y} x2={metrics.POST_X} y2={metrics.POST_TOP_Y} stroke="#111" strokeWidth="3" />
           <line x1={metrics.POST_X} y1={metrics.POST_TOP_Y} x2={metrics.ANC_X} y2={metrics.ANC_Y} stroke={metrics.failCable ? "#c00" : "#0057b7"} strokeWidth={2} strokeDasharray="6,3" />
+          
+          {/* Acción P */}
           <Arrow x1={metrics.POST_X - metrics.pLen - 10} y1={metrics.POST_TOP_Y} x2={metrics.POST_X - 6} y2={metrics.POST_TOP_Y} color="#c00" width={2.5} />
-          <text x={metrics.POST_X - metrics.pLen/2 - 10} y={metrics.POST_TOP_Y - 10} className="fill-red-700 text-xs font-bold" textAnchor="middle">P={P} kN</text>
+          <text x={metrics.POST_X - metrics.pLen/2 - 10} y={metrics.POST_TOP_Y - 10} className="fill-red-700 text-[11px] font-bold" textAnchor="middle">P={P} kN</text>
           
-          {/* Reacción Poste hacia ARRIBA */}
+          {/* Reacción Poste Ry ↑ */}
           <Arrow x1={metrics.POST_X} y1={metrics.BASE_Y + 5 + metrics.ryLen} x2={metrics.POST_X} y2={metrics.BASE_Y + 6} color="#080" />
-          
+          <text x={metrics.POST_X + 8} y={metrics.BASE_Y + metrics.ryLen + 15} className="fill-green-700 text-[10px]">Ry={metrics.Np.toFixed(1)} kN</text>
+
+          {/* Reacciones Anclaje Rx ← y Ry ↓ */}
           <Arrow x1={metrics.ANC_X} y1={metrics.ANC_Y} x2={metrics.ANC_X - metrics.rxLen} y2={metrics.ANC_Y} color="#080" />
+          <text x={metrics.ANC_X - metrics.rxLen - 5} y={metrics.ANC_Y + 4} textAnchor="end" className="fill-green-700 text-[10px]">Rx={P.toFixed(1)} kN</text>
           <Arrow x1={metrics.ANC_X} y1={metrics.ANC_Y} x2={metrics.ANC_X} y2={metrics.ANC_Y + metrics.ryLen} color="#080" />
-          
-          <text x={metrics.POST_X + 16} y={(metrics.BASE_Y + metrics.POST_TOP_Y)/2} className="fill-blue-800 text-xs font-bold">Np={metrics.Np.toFixed(1)} kN</text>
+          <text x={metrics.ANC_X - 5} y={metrics.ANC_Y + metrics.ryLen + 12} textAnchor="end" className="fill-green-700 text-[10px]">Ry={metrics.Np.toFixed(1)} kN</text>
+
+          {/* Etiquetas de Esfuerzos Internos */}
+          <text x={(metrics.POST_X + metrics.ANC_X)/2} y={(metrics.POST_TOP_Y + metrics.ANC_Y)/2 - 10} className="fill-blue-700 text-[11px] italic" textAnchor="middle">Nc={metrics.Nc.toFixed(1)} kN</text>
+          <text x={metrics.POST_X + 15} y={(metrics.BASE_Y + metrics.POST_TOP_Y)/2} className="fill-blue-800 text-[11px] font-bold">Np={metrics.Np.toFixed(1)} kN</text>
         </svg>
 
-        {/* Monitor de Tensiones */}
-        <div className="w-[550px] border border-slate-900 mt-4 p-3 font-mono text-[12px] bg-[#f8f8f0] shadow-sm shrink-0">
-          <div className="font-bold border-b border-slate-400 mb-2 pb-1 text-center italic">─── Monitor de Tensiones ───</div>
-          <div className="flex justify-around">
-            <span className={metrics.failCable ? "text-red-600 font-bold" : ""}>σ: {metrics.sigma_mpa.toFixed(1)} MPa</span>
-            <span className={metrics.failPin ? "text-red-600 font-bold" : ""}>τ: {metrics.tau_mpa.toFixed(1)} MPa</span>
-            <span className="text-slate-500 italic">α: {alpha}°</span>
+        {/* Memoria de Cálculo Detallada */}
+        <div className="w-[550px] border border-slate-900 p-3 font-mono text-[11px] bg-[#f8f8f0] shadow-sm mb-4">
+          <div className="font-bold border-b border-slate-400 mb-2 pb-1 text-center italic">─── Monitor de Tensiones y Memoria ───</div>
+          <div className="space-y-1">
+            <div className="flex justify-between">
+              <span>σ<sub>cable</sub> = N<sub>c</sub>/A = {metrics.Nc.toFixed(2)}/{Ac} =</span>
+              <span className={metrics.failCable ? "text-red-600 font-bold" : ""}>{metrics.sigma_mpa.toFixed(1)} MPa</span>
+            </div>
+            <div className="flex justify-between">
+              <span>τ<sub>perno</sub> = R<sub>x</sub>/A<sub>p</sub> = {P.toFixed(2)}/{A_PERNO} =</span>
+              <span className={metrics.failPin ? "text-red-600 font-bold" : ""}>{metrics.tau_mpa.toFixed(1)} MPa</span>
+            </div>
           </div>
         </div>
 
-        {/* Módulo de Preguntas (Alternativas) */}
-        <div className="w-[550px] mt-6 space-y-4 pb-10">
-          <h3 className="text-sm font-bold uppercase border-b-2 border-slate-900 pb-1 italic">Cuestionario de Laboratorio</h3>
+        {/* Cuestionario */}
+        <div className="w-[550px] space-y-3 pb-8">
+          <h3 className="text-xs font-bold uppercase border-b border-slate-900 pb-1 italic">Cuestionario de Evaluación</h3>
           {preguntas.map((q) => (
-            <div key={q.id} className="bg-slate-50 p-3 border border-slate-200">
-              <p className="text-xs font-bold mb-2">{q.id}. {q.texto}</p>
-              <div className="grid grid-cols-2 gap-2">
+            <div key={q.id} className="bg-slate-50 p-2 border border-slate-200 text-[11px]">
+              <p className="font-bold mb-1">{q.id}. {q.texto}</p>
+              <div className="grid grid-cols-2 gap-1">
                 {q.opciones.map((opt) => (
-                  <label key={opt} className="flex items-center gap-2 text-[11px] cursor-pointer hover:bg-slate-200 p-1 rounded">
-                    <input 
-                      type="radio" 
-                      name={`pregunta-${q.id}`} 
-                      value={opt}
-                      checked={respuestas[q.id] === opt}
-                      onChange={() => setRespuestas({ ...respuestas, [q.id]: opt })}
-                    />
+                  <label key={opt} className="flex items-center gap-2 cursor-pointer hover:bg-slate-200 p-1 rounded">
+                    <input type="radio" name={`pregunta-${q.id}`} value={opt} checked={respuestas[q.id] === opt} onChange={() => setRespuestas({ ...respuestas, [q.id]: opt })} />
                     {opt}
                   </label>
                 ))}
